@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catat dan visualisasikan pengeluaran harian Anda berdasarkan kategori." />
+  <title>Expense &amp; Budget Visualizer</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Storage warning banner (hidden by default) -->
+    <div id="storage-warning" hidden role="alert">
+      <i data-lucide="alert-triangle" class="icon icon--sm"></i>
+      Penyimpanan lokal tidak tersedia. Data tidak akan tersimpan saat browser ditutup.
+    </div>
+
+    <!-- Storage full notification (hidden by default) -->
+    <div id="storage-full-notice" hidden role="alert">
+      <i data-lucide="alert-triangle" class="icon icon--sm"></i>
+      Penyimpanan penuh. Hapus beberapa transaksi lama untuk melanjutkan.
+    </div>
+
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="app-header__logo">
+        <i data-lucide="bar-chart-2" class="icon icon--lg"></i>
+      </div>
+      <div>
+        <h1>Expense &amp; Budget Visualizer</h1>
+        <p class="app-header__sub">Pantau pengeluaran Anda dengan mudah</p>
+      </div>
+    </header>
+
+    <!-- 1. Balance Section -->
+    <section id="balance-section" aria-label="Total Pengeluaran">
+      <div class="balance-inner">
+        <div>
+          <p class="section-title">Total Pengeluaran</p>
+          <p id="balance-display" aria-live="polite">Rp 0</p>
+        </div>
+        <div class="balance-icon" aria-hidden="true">
+          <i data-lucide="wallet" class="icon icon--xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Chart + Form Grid (side-by-side on tablet+) -->
+    <div class="main-grid">
+
+      <!-- Chart Section -->
+      <section id="chart-section" aria-label="Grafik Pengeluaran per Kategori">
+        <p class="section-title">
+          <i data-lucide="pie-chart" class="icon icon--xs"></i>
+          Pengeluaran per Kategori
+        </p>
+        <div class="chart-wrapper">
+          <canvas id="expense-chart" role="img" aria-label="Pie chart pengeluaran per kategori"></canvas>
+          <div id="chart-fallback" hidden>
+            <i data-lucide="wifi-off" class="icon icon--md"></i>
+            <span>Grafik tidak tersedia. Periksa koneksi internet.</span>
+          </div>
+        </div>
+        <div id="chart-legend" class="chart-legend" aria-label="Legenda chart"></div>
+      </section>
+
+      <!-- Form Section -->
+      <section id="form-section" aria-label="Tambah Transaksi Baru">
+        <p class="section-title">
+          <i data-lucide="plus-circle" class="icon icon--xs"></i>
+          Tambah Transaksi
+        </p>
+
+        <form id="expense-form" novalidate aria-label="Form tambah transaksi">
+
+          <!-- Item Name -->
+          <div class="form-group">
+            <label for="item-name">Nama Item</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="item-name"
+                name="item-name"
+                placeholder="Contoh: Nasi Goreng"
+                autocomplete="off"
+                aria-describedby="error-name"
+              />
+              <i data-lucide="tag" class="icon icon--input" aria-hidden="true"></i>
+            </div>
+            <span id="error-name" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <!-- Amount -->
+          <div class="form-group">
+            <label for="item-amount">Jumlah (Rp)</label>
+            <div class="input-wrapper">
+              <input
+                type="number"
+                id="item-amount"
+                name="item-amount"
+                placeholder="Contoh: 25000"
+                min="1"
+                step="any"
+                autocomplete="off"
+                aria-describedby="error-amount"
+              />
+              <i data-lucide="banknote" class="icon icon--input" aria-hidden="true"></i>
+            </div>
+            <span id="error-amount" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label for="item-category">Kategori</label>
+            <div class="input-wrapper">
+              <select
+                id="item-category"
+                name="item-category"
+                aria-describedby="error-category"
+              >
+                <option value="">Pilih Kategori</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Fun">Fun</option>
+              </select>
+              <i data-lucide="chevron-down" class="icon icon--input" aria-hidden="true"></i>
+            </div>
+            <span id="error-category" class="error-message" role="alert" aria-live="polite"></span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btn-save">
+            <i data-lucide="plus" class="icon icon--sm"></i>
+            Tambah Transaksi
+          </button>
+
+        </form>
+      </section>
+
+    </div><!-- /.main-grid -->
+
+    <!-- 3. Transaction List Section -->
+    <section id="list-section" aria-label="Daftar Transaksi">
+      <p class="section-title">
+        <i data-lucide="list" class="icon icon--xs"></i>
+        Riwayat Transaksi
+      </p>
+      <ul id="transaction-list" aria-live="polite" aria-label="Daftar transaksi">
+        <!-- Populated by js/app.js -->
+        <li class="list-empty">
+          <i data-lucide="inbox" class="icon icon--lg"></i>
+          <span>Belum ada transaksi. Tambahkan transaksi pertama Anda.</span>
+        </li>
+      </ul>
+    </section>
+
+  </div><!-- /.app-container -->
+
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <!-- App Logic -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
